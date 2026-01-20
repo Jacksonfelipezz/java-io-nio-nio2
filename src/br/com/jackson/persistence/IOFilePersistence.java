@@ -1,19 +1,13 @@
 package br.com.jackson.persistence;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
-public class IOFilePersistence implements FilePersistence{
 
-    private final String currentDir = System.getProperty("user.dir");
+public class IOFilePersistence extends FilePersistence{
 
-    private final String storedDir = "/managerFiles/IO/";
-    private final String fileName;
 
-    public IOFilePersistence(String fileName) throws IOException {
-        this.fileName = fileName;
+    public IOFilePersistence(final String fileName) throws IOException {
+        super(fileName, "/managedFiles/IO/");
         var file = new File(currentDir + storedDir);
         if (!file.exists() && !file.mkdirs()) throw new IOException("Erro ao criar arquivo");
 
@@ -36,35 +30,6 @@ public class IOFilePersistence implements FilePersistence{
         }
         return data;
     }
-
-    @Override
-    public boolean remove(String sentece) {
-        var contentList = toListString();
-
-        if (contentList.stream().noneMatch( c -> c.contains(sentece))) return false;
-
-        clearFile();
-        contentList.stream()
-                .filter(c -> !c.contains(sentece))
-                .forEach(this::write);
-        return true;
-    }
-
-    @Override
-    public String replace(String oldContent, String newContent) {
-
-        var contentList = toListString();
-
-        if (contentList.stream().noneMatch( c -> c.contains(oldContent))) return "";
-
-        clearFile();
-        contentList.stream()
-                .map(c -> c.contains(oldContent) ? newContent : c)
-                .forEach(this::write);
-        return newContent;
-    }
-
-
 
     @Override
     public String findAll() {
@@ -101,19 +66,5 @@ public class IOFilePersistence implements FilePersistence{
         return found;
     }
 
-    private List<String> toListString() {
-        var content = findAll();
-        return  new ArrayList<>(Stream.of(content.split(System.lineSeparator())).toList());
-
-    }
-
-    private void clearFile(){
-        try {
-            OutputStream outputStream = new FileOutputStream(currentDir + storedDir + fileName);
-
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-    }
 
 }
